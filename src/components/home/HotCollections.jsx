@@ -5,31 +5,33 @@ import nftImage from "../../images/nftImage.jpg";
 import axios from 'axios'
 import 'keen-slider/keen-slider.min.css'
 import { useKeenSlider } from 'keen-slider/react'
+import Skeleton from "../UI/Skeleton";
 
 
 
 const HotCollections = () => {
   const [collections, setCollections] = useState([]); 
   const [loading, setLoading] = useState(true);
-  const [sliderRef, instanceRef] = useKeenSlider(
-    {
-      slideChanged() {
-        console.log('slide changed')
-      },
-    },
-    [
-      // add plugins here
-    ]
-  )
+
+  // const [sliderRef, instanceRef] = useKeenSlider(
+  //   {
+  //     slideChanged() {
+  //       console.log('slide changed')
+  //     },
+  //   },
+  //   [
+  //     // add plugins here
+  //   ]
+  // )
 
     useEffect(() => {
     const fetchCollections = async () => {
       try {
-        const response = await axios.get(
+        const { data } = await axios.get(
           "https://us-central1-nft-cloud-functions.cloudfunctions.net/hotCollections"
         );
         // Ensure we always set an array even if the API returns something unexpected
-        setCollections(Array.isArray(response.data) ? response.data : []);
+        setCollections(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error("Failed to fetch hot collections:", error);
         setCollections([]);
@@ -39,6 +41,8 @@ const HotCollections = () => {
     };
     fetchCollections();
   }, []);
+
+
 
   return (
     <section id="section-collections" className="no-bottom">
@@ -50,16 +54,22 @@ const HotCollections = () => {
               <div className="small-border bg-color-2"></div>
             </div>
           </div>
+
           {loading
             ? new Array(4).fill(0).map((_, index) => (
             <div className="col-lg-3 col-md-6 col-sm-6 col-xs-12" key={index}>
               <div className="nft_coll">
+                    {/* Skeleton for the NFT image */}
+                    <Skeleton width="100%" height="200px" borderRadius="8px" />
+
                 <div className="nft_wrap">
                   <Link to="/item-details">
                     <img src={nftImage} className="lazy img-fluid" alt="" />
                   </Link>
                 </div>
-                <div className="nft_coll_pp">
+                
+                <div className="nft_coll_pp" style={{ marginTop: "-25px" }}> 
+                  <Skeleton width="50px" height="50px" borderRadius="50%" />
                   <Link to="/author">
                     <img className="lazy pp-coll" src={AuthorImage} alt="" />
                   </Link>
