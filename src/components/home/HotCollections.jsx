@@ -1,27 +1,48 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import Slider from "react-slick";
 import Skeleton from "../UI/Skeleton";
-import { useKeenSlider } from "keen-slider/react";
-import "keen-slider/keen-slider.min.css";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 import AuthorImage from "../../images/author_thumbnail.jpg";
 import nftImage from "../../images/nftImage.jpg";
+
+/** Custom arrows for react-slick */
+function PrevArrow(props) {
+  const { className, style, onClick } = props;
+  return (
+    <button
+      aria-label="Previous"
+      className={`${className} hc-arrow hc-arrow--left`}
+      style={style}
+      onClick={onClick}
+      type="button"
+    >
+      ‹
+    </button>
+  );
+}
+function NextArrow(props) {
+  const { className, style, onClick } = props;
+  return (
+    <button
+      aria-label="Next"
+      className={`${className} hc-arrow hc-arrow--right`}
+      style={style}
+      onClick={onClick}
+      type="button"
+    >
+      ›
+    </button>
+  );
+}
 
 const HotCollections = () => {
   const [collections, setCollections] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const [sliderRef, instanceRef] = useKeenSlider({
-    loop: true,
-    slides: { perView: 4, spacing: 16 },
-    breakpoints: {
-      "(max-width: 575.98px)": { slides: { perView: 1, spacing: 12 } },
-      "(min-width: 576px) and (max-width: 767.98px)": { slides: { perView: 2, spacing: 12 } },
-      "(min-width: 768px) and (max-width: 991.98px)": { slides: { perView: 3, spacing: 14 } },
-      "(min-width: 992px)": { slides: { perView: 4, spacing: 16 } },
-    },
-  });
-
+  // Fetch collections
   useEffect(() => {
     const fetchCollections = async () => {
       try {
@@ -29,8 +50,8 @@ const HotCollections = () => {
           "https://us-central1-nft-cloud-functions.cloudfunctions.net/hotCollections"
         );
         setCollections(Array.isArray(data) ? data : []);
-      } catch (error) {
-        console.error("Failed to fetch hot collections:", error);
+      } catch (err) {
+        console.error("Failed to fetch hot collections:", err);
         setCollections([]);
       } finally {
         setLoading(false);
@@ -39,62 +60,109 @@ const HotCollections = () => {
     fetchCollections();
   }, []);
 
-  // Recompute Keen layout after data mounts
-  useEffect(() => {
-    if (instanceRef.current) instanceRef.current.update();
-  }, [collections, instanceRef]);
+  // react-slick settings
+  const settings = useMemo(
+    () => ({
+      infinite: true,           // loop
+      speed: 500,
+      slidesToShow: 4,          // desktop
+      slidesToScroll: 1,
+      arrows: true,
+      dots: false,
+      // Place custom arrows
+      prevArrow: <PrevArrow />,
+      nextArrow: <NextArrow />,
+      // Responsive breakpoints
+      responsive: [
+        {
+          breakpoint: 992, // < 992px
+          settings: { slidesToShow: 3, slidesToScroll: 1 }
+        },
+        {
+          breakpoint: 768, // < 768px
+          settings: { slidesToShow: 2, slidesToScroll: 1 }
+        },
+        {
+          breakpoint: 576, // < 576px
+          settings: { slidesToShow: 1, slidesToScroll: 1 }
+        }
+      ]
+    }),
+    []
+  );
 
-  const slideStyle = { padding: 0, minWidth: 0, display: "flex", flex: "0 0 auto" };
+  // Hardening to make each card fill its slide exactly
+  const slideWrapStyle = { padding: 0, minWidth: 0, display: "flex" };
   const cardStyle = { width: "100%", maxWidth: "100%", boxSizing: "border-box", margin: 0 };
   const mediaStyle = { width: "100%", display: "block" };
 
   return (
     <section id="section-collections" className="no-bottom">
-      {/* Local CSS: arrow styling + critical sizing fixes to stop the peeked slide */}
+      {/* Local CSS: arrow styling + sizing fixes for slick */}
       <style>{`
-        /* Arrow layout */
-        .slider-wrap { position: relative; }
-        .slider-arrows {
+        /* Make slick track flex so children can stretch cleanly */
+        .hot-collections .slick-track {
+          display: flex !important;
+          gap: 16px; /* horizontal spacing between slides */
+        }
+        /* Each slick slide should behave like a flex item and not shrink */
+        .hot-collections .slick-slide {
+          height: auto;            /* allow content height */
+        }
+        .hot-collections .slick-slide > div {
+          height: 100%;
+          display: flex;           /* so card can stretch */
+          min-width: 0;
+        }
+        /* Card fills slide; include borders in width to prevent overflow */
+        .hot-collections .nft_coll {
+          width: 100%;
+          max-width: 100%;
+          box-sizing: border-box;
+          margin-left: 0 !important;
+          margin-right: 0 !important;
+        }
+        .hot-collections .nft_wrap,
+        .hot-collections .nft_wrap img {
+          width: 100%;
+          display: block;
+        }
+
+        /* Hide default slick arrows text and theme bg */
+        .hc-arrow.slick-arrow {
           position: absolute;
           top: 50%;
-          left: 0; right: 0;
           transform: translateY(-50%);
-          display: flex; justify-content: space-between; align-items: center;
-          pointer-events: none; z-index: 5;
-        }
-        .slider-arrows button {
-          pointer-events: auto;
+          z-index: 3;
           width: 56px; height: 56px;
           border-radius: 12px;
           border: 1px solid #D9D9D9;
           background: #fff;
+          color: #222;
+          font-size: 32px;
+          line-height: 1;
           display: grid; place-items: center;
-          font-size: 32px; line-height: 1;
           box-shadow: 0 8px 20px rgba(0,0,0,0.10);
         }
-        .slider-arrows .arrow-left  { position: relative; left: -42px; }
-        .slider-arrows .arrow-right { position: relative; right: -42px; }
+        .hc-arrow--left  { left: -42px; }
+        .hc-arrow--right { right: -42px; }
+        .hc-arrow:before { content: none; } /* remove slick default icon */
 
-        /* Critical: stop width overflow that causes the 'stuck' right slide */
-        .keen-slider { overflow: hidden; }
-        .keen-slider__slide {
-          flex: 0 0 auto;        /* no shrink */
-          display: flex;         /* let child stretch full width */
-          min-width: 0;
-          padding: 0 !important; /* no inner padding that affects width */
+        /* Container to ensure arrows line up vertically */
+        .hot-collections {
+          position: relative;
+          padding: 0 16px; /* breathing room so arrows don't overlap on tiny viewports */
         }
-        /* Make card fill slide and include its border in width */
-        .keen-slider__slide .nft_coll {
-          width: 100%;
-          max-width: 100%;
-          box-sizing: border-box;    /* <-- key fix */
-          margin-left: 0 !important; /* ensure no horizontal margins */
-          margin-right: 0 !important;
+
+        /* Adjust gap for small devices since we rely on flex gap, not slick's padding */
+        @media (max-width: 991.98px) {
+          .hot-collections .slick-track { gap: 14px; }
         }
-        /* Media fills card width exactly */
-        .nft_wrap, .nft_wrap img {
-          width: 100%;
-          display: block;
+        @media (max-width: 767.98px) {
+          .hot-collections .slick-track { gap: 12px; }
+          .hc-arrow--left  { left: -28px; }
+          .hc-arrow--right { right: -28px; }
+          .hc-arrow { width: 48px; height: 48px; font-size: 28px; }
         }
       `}</style>
 
@@ -108,29 +176,12 @@ const HotCollections = () => {
           </div>
         </div>
 
-        {/* Keep the slider out of Bootstrap columns so it can use full container width */}
-        <div className="slider-wrap">
-          <div className="slider-arrows">
-            <button
-              className="arrow-left"
-              aria-label="Previous"
-              onClick={() => instanceRef.current && instanceRef.current.prev()}
-            >
-              ‹
-            </button>
-            <button
-              className="arrow-right"
-              aria-label="Next"
-              onClick={() => instanceRef.current && instanceRef.current.next()}
-            >
-              ›
-            </button>
-          </div>
-
-          <div ref={sliderRef} className="keen-slider" style={{ overflow:'hidden'}}>
+        {/* Slider */}
+        <div className="hot-collections">
+          <Slider {...settings}>
             {loading
               ? new Array(4).fill(0).map((_, index) => (
-                  <div className="keen-slider__slide" style={slideStyle} key={index}>
+                  <div key={index} style={slideWrapStyle}>
                     <div className="nft_coll" style={cardStyle}>
                       <Skeleton width="100%" height="200px" borderRadius="8px" />
                       <div className="nft_coll_pp" style={{ marginTop: "-25px" }}>
@@ -144,7 +195,7 @@ const HotCollections = () => {
                   </div>
                 ))
               : collections.map((collection) => (
-                  <div className="keen-slider__slide" style={slideStyle} key={collection.id}>
+                  <div key={collection.id} style={slideWrapStyle}>
                     <div className="nft_coll" style={cardStyle}>
                       <div className="nft_wrap" style={mediaStyle}>
                         <Link to={`/item-details/${collection.nftId || collection.id}`}>
@@ -176,7 +227,7 @@ const HotCollections = () => {
                     </div>
                   </div>
                 ))}
-          </div>
+          </Slider>
         </div>
       </div>
     </section>
