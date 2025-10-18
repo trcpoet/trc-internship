@@ -13,19 +13,11 @@ const HotCollections = () => {
 
   const [sliderRef, instanceRef] = useKeenSlider({
     loop: true,
-    renderMode: "performance",
-    slides: {
-      perView: 4, // 4 visible on large screens
-      spacing: 16,
-    },
+    slides: { perView: 4, spacing: 16 },
     breakpoints: {
       "(max-width: 575.98px)": { slides: { perView: 1, spacing: 12 } },
-      "(min-width: 576px) and (max-width: 767.98px)": {
-        slides: { perView: 2, spacing: 12 },
-      },
-      "(min-width: 768px) and (max-width: 991.98px)": {
-        slides: { perView: 3, spacing: 14 },
-      },
+      "(min-width: 576px) and (max-width: 767.98px)": { slides: { perView: 2, spacing: 12 } },
+      "(min-width: 768px) and (max-width: 991.98px)": { slides: { perView: 3, spacing: 14 } },
       "(min-width: 992px)": { slides: { perView: 4, spacing: 16 } },
     },
   });
@@ -52,6 +44,10 @@ const HotCollections = () => {
     if (instanceRef.current) instanceRef.current.update();
   }, [collections, instanceRef]);
 
+  const slideStyle = { padding: 0, minWidth: 0, display: "flex", flex: "0 0 auto" };
+  const cardStyle = { width: "100%", maxWidth: "100%", boxSizing: "border-box", margin: 0 };
+  const mediaStyle = { width: "100%", display: "block" };
+
   return (
     <section id="section-collections" className="no-bottom">
       {/* Local CSS: arrow styling + critical sizing fixes to stop the peeked slide */}
@@ -76,8 +72,8 @@ const HotCollections = () => {
           font-size: 32px; line-height: 1;
           box-shadow: 0 8px 20px rgba(0,0,0,0.10);
         }
-        .slider-arrows .arrow-left  { position: relative; left: -28px; }
-        .slider-arrows .arrow-right { position: relative; right: -28px; }
+        .slider-arrows .arrow-left  { position: relative; left: -42px; }
+        .slider-arrows .arrow-right { position: relative; right: -42px; }
 
         /* Critical: stop width overflow that causes the 'stuck' right slide */
         .keen-slider { overflow: hidden; }
@@ -131,11 +127,11 @@ const HotCollections = () => {
             </button>
           </div>
 
-          <div ref={sliderRef} className="keen-slider">
+          <div ref={sliderRef} className="keen-slider" style={{ overflow:'hidden'}}>
             {loading
               ? new Array(4).fill(0).map((_, index) => (
-                  <div className="keen-slider__slide" key={index}>
-                    <div className="nft_coll">
+                  <div className="keen-slider__slide" style={slideStyle} key={index}>
+                    <div className="nft_coll" style={cardStyle}>
                       <Skeleton width="100%" height="200px" borderRadius="8px" />
                       <div className="nft_coll_pp" style={{ marginTop: "-25px" }}>
                         <Skeleton width="50px" height="50px" borderRadius="50%" />
@@ -148,14 +144,15 @@ const HotCollections = () => {
                   </div>
                 ))
               : collections.map((collection) => (
-                  <div className="keen-slider__slide" key={collection.id}>
-                    <div className="nft_coll">
-                      <div className="nft_wrap">
+                  <div className="keen-slider__slide" style={slideStyle} key={collection.id}>
+                    <div className="nft_coll" style={cardStyle}>
+                      <div className="nft_wrap" style={mediaStyle}>
                         <Link to={`/item-details/${collection.nftId || collection.id}`}>
                           <img
                             src={collection.nftImage || nftImage}
                             className="lazy img-fluid"
                             alt={collection.title}
+                            style={mediaStyle}
                           />
                         </Link>
                       </div>
@@ -165,6 +162,7 @@ const HotCollections = () => {
                             className="lazy pp-coll"
                             src={collection.authorImage || AuthorImage}
                             alt={collection.title}
+                            style={{ display: "block" }}
                           />
                         </Link>
                         <i className="fa fa-check"></i>
