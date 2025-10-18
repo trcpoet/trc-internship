@@ -135,17 +135,25 @@ const HotCollections = () => {
           transform: translateY(-50%);
           z-index: 3;
           width: 56px; height: 56px;
-          border-radius: 12px;
+          border-radius: 50%;
           border: 1px solid #D9D9D9;
           background: #fff;
           color: #222;
           font-size: 32px;
           line-height: 1;
-          display: grid; place-items: center;
-          box-shadow: 0 8px 20px rgba(0,0,0,0.10);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          cursor: pointer;
+          transition: all 0.25s ease;
+          box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
         }
-        .hc-arrow--left  { left: -42px; }
-        .hc-arrow--right { right: -42px; }
+        .hc-arrow:hover {
+          background: #f4f4f4;             /* subtle hover feedback */
+          transform: translateY(-50%) scale(1.05);
+        }
+        .hc-arrow--left  { left: -21px; }
+        .hc-arrow--right { right: -21px; }
         .hc-arrow:before { content: none; } /* remove slick default icon */
 
         /* Container to ensure arrows line up vertically */
