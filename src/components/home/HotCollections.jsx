@@ -9,8 +9,7 @@ import AuthorImage from "../../images/author_thumbnail.jpg";
 import nftImage from "../../images/nftImage.jpg";
 
 /** Custom arrows for react-slick */
-function PrevArrow(props) {
-  const { className, style, onClick } = props;
+function PrevArrow({className, style, onClick}) {
   return (
     <button
       aria-label="Previous"
@@ -23,6 +22,7 @@ function PrevArrow(props) {
     </button>
   );
 }
+
 function NextArrow(props) {
   const { className, style, onClick } = props;
   return (
