@@ -14167,16 +14167,47 @@ a.read_more i {
 
 .de_countdown {
   position: absolute;
-  right: 20px;
-  background: #ffffff;
-  padding: 1px 10px;
-  border-radius: 30px;
-  -moz-border-radius: 30px;
-  -webkit-border-radius: 30px;
-  border: solid 2px #dddddd;
-  z-index: 100;
+  top: 16px;
+  right: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: linear-gradient(135deg, #ffffff 0%, #f5f8ff 100%);
   color: #0d0c22;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  border-radius: 999px;
+  border: 1px solid rgba(13, 12, 34, 0.08);
+  box-shadow: 0 8px 20px rgba(13, 12, 34, 0.08);
+  transition: transform 180ms ease, box-shadow 180ms ease,
+              background 220ms ease, color 180ms ease;
+  z-index: 100;
+  text-transform: uppercase;
 }
+
+.de_countdown::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #4ad991;
+  box-shadow: 0 0 0 4px rgba(74, 217, 145, 0.25);
+  transition: box-shadow 200ms ease;
+}
+
+.de_countdown:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, #ecf3ff 0%, #e4ebff 100%);
+  box-shadow: 0 14px 28px rgba(13, 12, 34, 0.14);
+  color: #051937;
+}
+
+.de_countdown:hover::before {
+  box-shadow: 0 0 0 6px rgba(74, 217, 145, 0.45);
+}
+
 
 .de_countdown.bg-color-secondary {
   border: none;
@@ -14209,6 +14240,12 @@ a.read_more i {
   font-size: 14px;
   margin-right: 8px;
   font-weight: bold;
+}
+
+.countdown {
+  font-size: large;
+  font-weight: 800;
+  color: red;
 }
 
 .nft_layout-2 .countdown-section {
@@ -15172,7 +15209,7 @@ a.btn-slider:hover {
   margin: 0 6px;
   display: inline-block;
   zoom: 1;
-  *display: inline;
+  display: inline;
 }
 
 .testi-slider .flex-control-paging li a {

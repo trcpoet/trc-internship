@@ -1,32 +1,36 @@
 import React, { useEffect, useState } from "react";
-// The <Link> component was causing a router context error.
-// We are replacing it with a standard <a> tag as a workaround.
-// import { Link } from "react-router-dom"; 
+import CountdownTimer from "../UI/CountdownTimer";
+import { Link } from "react-router-dom";
 import axios from 'axios';
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+
+
 
 // Self-contained Skeleton component to remove dependency
-const Skeleton = ({ width, height, borderRadius, className = '' }) => (
+const Skeleton = ({ width, height, borderRadius }) => (
   <div
-    className={`skeleton-box ${className}`}
-    style={{ width, height, borderRadius }}
+    style={{
+      width,
+      height,
+      borderRadius,
+      backgroundColor: "#e0e0e0",
+      animation: "pulse 1.5s infinite ease-in-out"
+    }}
   ></div>
 );
 
-// Skeleton Loader for a single item
-const SkeletonLoader = () => (
-  <div className="nft__item" style={{ flex: '0 0 280px', width: '280px' }}>
-    <div className="author_list_pp">
-      <Skeleton width="50px" height="50px" borderRadius="50%" />
-    </div>
-    <div className="nft__item_wrap" style={{ marginTop: '-25px' }}>
-      <Skeleton height="180px" borderRadius="8px" />
-    </div>
-    <div className="nft__item_info">
-      <Skeleton height="20px" width="80%" />
-      <div style={{height: '10px'}} />
-      <Skeleton height="16px" width="50%" />
-    </div>
-  </div>
+const PrevArrow = ({ onClick }) => (
+  <button className="hc-arrow hc-arrow--left" onClick={onClick}>
+    ‹
+  </button>
+);
+
+const NextArrow = ({ onClick }) => (
+  <button className="hc-arrow hc-arrow--right" onClick={onClick}>
+    ›
+  </button>
 );
 
 const NewItems = () => {
@@ -50,6 +54,22 @@ const NewItems = () => {
     fetchNewItems();
   }, []);
 
+  const settings = {
+    infinite: true,
+    speed: 300,
+    slidesToShow: 4,
+    slidesToScroll: 1,
+    arrows: true,
+    prevArrow: <PrevArrow />,
+    nextArrow: <NextArrow />,
+    responsive: [
+      { breakpoint: 992, settings: { slidesToShow: 3 } },
+      { breakpoint: 768, settings: { slidesToShow: 2 } },
+      { breakpoint: 576, settings: { slidesToShow: 1 } }
+    ]
+  };
+
+
   // Placeholder images for fallbacks
   const AuthorImage = "https://placehold.co/60x60/DDD/31343C?text=A";
   const nftImage = "https://placehold.co/400x400/DDD/31343C?text=NFT";
@@ -57,95 +77,107 @@ const NewItems = () => {
   return (
     <section id="section-items" className="no-bottom">
       <style>{`
-        /* Skeleton Animation */
-        @keyframes skeleton-loading {
-          0% { background-color: #e0e0e0; }
-          50% { background-color: #f0f0f0; }
-          100% { background-color: #e0e0e0; }
+        @keyframes pulse {
+          0% { background-color: #eee; }
+          50% { background-color: #ddd; }
+          100% { background-color: #eee; }
         }
-        .skeleton-box {
-          animation: skeleton-loading 1.5s infinite ease-in-out;
-          background-color: #e0e0e0;
-        }
-
-        /* Horizontal Scroller */
-        .horizontal-scroll-container {
-          overflow-x: auto;
-          padding-bottom: 20px;
-          scrollbar-width: none; /* For Firefox */
-        }
-        .horizontal-scroll-container::-webkit-scrollbar {
-          display: none; /* For Chrome, Safari, and Opera */
-        }
-        .horizontal-scroll-content {
+        .hc-arrow {
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          z-index: 10;
+          width: 56px;
+          height: 56px;
+          border-radius: 50%;
+          background: #fff;
+          border: 1px solid #D9D9D9;
+          box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+          font-size: 28px;
+          color: #333;
           display: flex;
-          gap: 20px; 
+          align-items: center;
+          transition: all 0.25s ease;
+          justify-content: center;
+          cursor: pointer;
         }
+        .hc-arrow--left { left: -22px; }
+        .hc-arrow--right { right: -22px; }
+
+        .new-items-slider .slick-slide > div {
+        padding: 0 10px;}
+
       `}</style>
-      <div className="container">
+
+      <div className="container new-items-slider">
         <div className="row">
-          <div className="col-lg-12">
-            <div className="text-center">
-              <h2>New Items</h2>
-              <div className="small-border bg-color-2"></div>
-            </div>
+          <div className="col-lg-12 text-center">
+            <h2>New Items</h2>
+            <div className="small-border bg-color-2"></div>
           </div>
         </div>
 
-        <div className="horizontal-scroll-container">
-          <div className="horizontal-scroll-content">
-            {loading 
-              ? (
-                new Array(4).fill(0).map((_, index) => (
-                  <SkeletonLoader key={index} />
-                ))
-              ) : (
-                items.map((item) => (
-                  <div key={item.id} style={{ flex: '0 0 280px', width: '280px' }}>
+        <Slider {...settings}>
+          {loading
+            ? new Array(4).fill(0).map((_, index) => (
+                <div key={index} className="nft__item">
+                  <Skeleton width="100%" height="200px" borderRadius="12px" />
+                  <div style={{ marginTop: "-20px" }}>
+                    <Skeleton width="50px" height="50px" borderRadius="50%" />
+                  </div>
+                  <Skeleton width="80%" height="20px" borderRadius="6px" />
+                  <Skeleton width="60%" height="16px" borderRadius="4px" />
+                </div>
+              ))
+            : items.map((item) => {
+                const deadlineValue =
+                  item.deadline ?? item.expiryDate ?? item.expiry_date ?? null;
+                return (
+                  <div key={item.id}>
                     <div className="nft__item">
-                      <div className="author_list_pp">
-                        <a href={`/author/${item.authorId}`}>
-                          <img className="lazy" src={item.authorImage || AuthorImage} alt="" />
-                          <i className="fa fa-check"></i>
-                        </a>
+                    <div className="author_list_pp">
+                      <Link to={`/author/${item.authorId || item.id}`}>
+                        <img
+                          src={item.authorImage || AuthorImage}
+                          alt="author"
+                        />
+                        <i className="fa fa-check"></i>
+                      </Link>
+                    </div>
+
+                    {deadlineValue ? (
+                      <div className="de_countdown">
+                        <CountdownTimer deadline={deadlineValue} />
                       </div>
-                      <div className="de_countdown">{item.deadline}</div>
-                      <div className="nft__item_wrap">
-                        <div className="nft__item_extra">
-                          <div className="nft__item_buttons">
-                            <button>Buy Now</button>
-                            <div className="nft__item_share">
-                              <h4>Share</h4>
-                              <a href="#"><i className="fa fa-facebook fa-lg"></i></a>
-                              <a href="#"><i className="fa fa-twitter fa-lg"></i></a>
-                              <a href="#"><i className="fa fa-envelope fa-lg"></i></a>
-                            </div>
-                          </div>
-                        </div>
-                        <a href={`/item-details/${item.nftId}`}>
-                          <img src={item.nftImage || nftImage} className="lazy nft__item_preview" alt="" />
-                        </a>
-                      </div>
-                      <div className="nft__item_info">
-                        <a href={`/item-details/${item.nftId}`}>
-                          <h4>{item.title}</h4>
-                        </a>
-                        <div className="nft__item_price">{item.price} ETH</div>
-                        <div className="nft__item_like">
-                          <i className="fa fa-heart"></i>
-                          <span>{item.likes}</span>
-                        </div>
+                    ) : null}
+
+                    <div className="nft__item_wrap">
+                      <Link to={`/item-details/${item.nftId || item.id}`}>
+                        <img
+                          src={item.nftImage || nftImage}
+                          className="nft__item_preview"
+                          alt={item.title}
+                        />
+                      </Link>
+                    </div>
+                    <div className="nft__item_info">
+                      <Link to={`/item-details/${item.nftId || item.id}`}>
+                        <h4>{item.title}</h4>
+                      </Link>
+                      <div className="nft__item_price">{item.price} ETH</div>
+                      <div className="nft__item_like">
+                        <i className="fa fa-heart"></i>
+                        <span>{item.likes}</span>
                       </div>
                     </div>
                   </div>
-                ))
-              )}
-          </div>
-        </div>
+                </div>
+              );
+              })}
+        </Slider>
       </div>
     </section>
   );
 };
 
 export default NewItems;
-
