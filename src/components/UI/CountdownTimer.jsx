@@ -2,9 +2,8 @@ import React, { useEffect, useState } from "react";
 
 const CountdownTimer = ({ deadline }) => {
   const getTimeLeft = (deadlineValue) => {
-    // Normalize deadline: convert to timestamp if it's a string
     const deadlineTime = typeof deadlineValue === "string"
-      ? new Date(deadlineValue).getTime()
+      ? new Date(Number(deadlineValue)).getTime()
       : deadlineValue;
 
     const total = deadlineTime - Date.now();
@@ -26,6 +25,11 @@ const CountdownTimer = ({ deadline }) => {
 
     return () => clearInterval(interval);
   }, [deadline]);
+
+  useEffect(() => {
+    console.log("Parsed Deadline:", deadline); // Use deadline instead of deadlineValue
+    console.log("Time Left:", timeLeft);
+  }, [deadline, timeLeft]); // Update dependency array
 
   if (!timeLeft) return null;
 

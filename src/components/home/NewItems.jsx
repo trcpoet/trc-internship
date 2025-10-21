@@ -62,7 +62,7 @@ const NewItems = () => {
 
   const settings = {
     infinite: true,
-    speed: 500,
+    speed: 300,
     slidesToShow: 4,
     slidesToScroll: 1,
     arrows: true,
@@ -112,6 +112,7 @@ const NewItems = () => {
 
         .new-items-slider .slick-slide > div {
         padding: 0 10px;}
+
       `}</style>
 
       <div className="container new-items-slider">
@@ -149,7 +150,7 @@ const NewItems = () => {
 
                     <div className="de_countdown">
                       {item.deadline && <CountdownTimer deadline={item.deadline}/>}
-                      </div>
+                    </div>
 
                     <div className="nft__item_wrap">
                       <a href={`/item-details/${item.nftId}`}>
