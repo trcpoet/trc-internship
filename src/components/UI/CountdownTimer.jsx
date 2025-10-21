@@ -1,43 +1,111 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 
-const CountdownTimer = ({ deadline }) => {
-  const getTimeLeft = (deadlineValue) => {
-    const deadlineTime = typeof deadlineValue === "string"
-      ? new Date(Number(deadlineValue)).getTime()
+const getDeadlineTime = (deadlineValue) => {
+  if (!deadlineValue) return null;
+
+  if (deadlineValue instanceof Date) {
+    return deadlineValue.getTime();
+  }
+
+  const numericValue =
+    typeof deadlineValue === "string"
+      ? Number(deadlineValue.trim())
       : deadlineValue;
 
+  if (typeof numericValue === "number" && Number.isFinite(numericValue)) {
+    if (numericValue > 1e12) {
+      return numericValue;
+    }
+
+    if (numericValue > 1e9) {
+      return numericValue * 1000;
+    }
+
+    // Treat smaller numbers as an offset (seconds) from "now"
+    return Date.now() + numericValue * 1000;
+  }
+
+  if (typeof deadlineValue === "string") {
+    const parsed = Date.parse(deadlineValue);
+    if (!Number.isNaN(parsed)) {
+      return parsed;
+    }
+  }
+
+  return null;
+};
+
+const CountdownTimer = ({ deadline }) => {
+  const deadlineTime = useMemo(() => getDeadlineTime(deadline), [deadline]);
+
+  const calculateTimeLeft = useCallback(() => {
+    if (!deadlineTime) return null;
+
     const total = deadlineTime - Date.now();
-    const seconds = Math.floor((total / 1000) % 60);
-    const minutes = Math.floor((total / 1000 / 60) % 60);
-    const hours = Math.floor((total / (1000 * 60 * 60)) % 24);
+    const clampedTotal = Math.max(total, 0);
 
-    return total > 0 ? { hours, minutes, seconds } : null;
-  };
+    const totalSeconds = Math.floor(clampedTotal / 1000);
+    const seconds = totalSeconds % 60;
+    const minutes = Math.floor((totalSeconds / 60) % 60);
+    const hours = Math.floor((totalSeconds / 3600) % 24);
+    const days = Math.floor(totalSeconds / 86400);
 
-  const [timeLeft, setTimeLeft] = useState(getTimeLeft(deadline));
+    return {
+      days,
+      hours,
+      minutes,
+      seconds,
+      isExpired: total <= 0
+    };
+  }, [deadlineTime]);
+
+  const [timeLeft, setTimeLeft] = useState(() => calculateTimeLeft());
 
   useEffect(() => {
+    if (!deadlineTime) {
+      setTimeLeft(null);
+      return;
+    }
+
+    setTimeLeft(calculateTimeLeft());
+
     const interval = setInterval(() => {
-      const newTime = getTimeLeft(deadline);
-      if (!newTime) clearInterval(interval);
+      const newTime = calculateTimeLeft();
+      if (!newTime) {
+        clearInterval(interval);
+        setTimeLeft(null);
+        return;
+      }
       setTimeLeft(newTime);
+      if (newTime.isExpired) {
+        clearInterval(interval);
+      }
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [deadline]);
+  }, [calculateTimeLeft, deadlineTime]);
 
   useEffect(() => {
-    console.log("Parsed Deadline:", deadline); // Use deadline instead of deadlineValue
-    console.log("Time Left:", timeLeft);
-  }, [deadline, timeLeft]); // Update dependency array
+    if (process.env.NODE_ENV !== "production") {
+      console.debug("CountdownTimer", {
+        deadline,
+        deadlineTime,
+        timeLeft
+      });
+    }
+  }, [deadline, deadlineTime, timeLeft]);
 
-  if (!timeLeft) return null;
+  if (!deadlineTime || !timeLeft) return null;
 
-  return (
-    <div>
-      {timeLeft.hours}h {timeLeft.minutes}m {timeLeft.seconds}s
-    </div>
-  );
+  const pad = (value) => String(value).padStart(2, "0");
+
+  return timeLeft.isExpired
+    ? "Expired"
+    : `${
+        timeLeft.days > 0 ? `${timeLeft.days}d ` : ""
+      }${pad(timeLeft.hours)}h ${pad(timeLeft.minutes)}m ${pad(
+        timeLeft.seconds
+      )}s`;
 };
 
 export default CountdownTimer;

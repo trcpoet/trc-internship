@@ -8,8 +8,6 @@ import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
-const AuthorImage = "https://placehold.co/60x60/DDD/31343C?text=A";
-const nftImage = "https://placehold.co/400x400/DDD/31343C?text=NFT";
 
 
 // Self-contained Skeleton component to remove dependency
@@ -135,9 +133,12 @@ const NewItems = () => {
                   <Skeleton width="60%" height="16px" borderRadius="4px" />
                 </div>
               ))
-            : items.map((item) => (
-                <div key={item.id}>
-                  <div className="nft__item">
+            : items.map((item) => {
+                const deadlineValue =
+                  item.deadline ?? item.expiryDate ?? item.expiry_date ?? null;
+                return (
+                  <div key={item.id}>
+                    <div className="nft__item">
                     <div className="author_list_pp">
                       <a href={`/author/${item.authorId}`}>
                         <img
@@ -148,9 +149,11 @@ const NewItems = () => {
                       </a>
                     </div>
 
-                    <div className="de_countdown">
-                      {item.deadline && <CountdownTimer deadline={item.deadline}/>}
-                    </div>
+                    {deadlineValue ? (
+                      <div className="de_countdown">
+                        <CountdownTimer deadline={deadlineValue} />
+                      </div>
+                    ) : null}
 
                     <div className="nft__item_wrap">
                       <a href={`/item-details/${item.nftId}`}>
@@ -173,7 +176,8 @@ const NewItems = () => {
                     </div>
                   </div>
                 </div>
-              ))}
+              );
+              })}
         </Slider>
       </div>
     </section>
