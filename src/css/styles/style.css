@@ -14157,6 +14157,7 @@ a.read_more i {
   transition: transform 180ms ease, box-shadow 180ms ease,
               background 220ms ease, color 180ms ease;
   z-index: 100;
+  text-transform: uppercase;
 }
 
 .de_countdown::before {
