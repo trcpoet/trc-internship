@@ -14140,15 +14140,18 @@ a.read_more i {
 
 .de_countdown {
   position: absolute;
+  top: 20px;
   right: 20px;
   background: #ffffff;
-  padding: 1px 10px;
+  padding: 4px 10px;
+  border: 1px solid #ccc;
   border-radius: 30px;
   -moz-border-radius: 30px;
   -webkit-border-radius: 30px;
   border: solid 2px #dddddd;
   z-index: 100;
   color: #0d0c22;
+  font-size: 12px;
 }
 
 .de_countdown.bg-color-secondary {
@@ -14182,6 +14185,12 @@ a.read_more i {
   font-size: 14px;
   margin-right: 8px;
   font-weight: bold;
+}
+
+.countdown {
+  font-size: large;
+  font-weight: 800;
+  color: #000;
 }
 
 .nft_layout-2 .countdown-section {
@@ -15145,7 +15154,7 @@ a.btn-slider:hover {
   margin: 0 6px;
   display: inline-block;
   zoom: 1;
-  *display: inline;
+  display: inline;
 }
 
 .testi-slider .flex-control-paging li a {
