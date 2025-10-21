@@ -1,8 +1,6 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import CountdownTimer from "../UI/CountdownTimer";
-// The <Link> component was causing a router context error.
-// We are replacing it with a standard <a> tag as a workaround.
-// import { Link } from "react-router-dom"; 
+import { Link } from "react-router-dom";
 import axios from 'axios';
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
@@ -38,8 +36,6 @@ const NextArrow = ({ onClick }) => (
 const NewItems = () => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  // const scrollRef = useRef(null); 
-
 
   useEffect(() => {
     async function fetchNewItems() {
@@ -140,13 +136,13 @@ const NewItems = () => {
                   <div key={item.id}>
                     <div className="nft__item">
                     <div className="author_list_pp">
-                      <a href={`/author/${item.authorId}`}>
+                      <Link to={`/author/${item.authorId || item.id}`}>
                         <img
                           src={item.authorImage || AuthorImage}
                           alt="author"
                         />
                         <i className="fa fa-check"></i>
-                      </a>
+                      </Link>
                     </div>
 
                     {deadlineValue ? (
@@ -156,18 +152,18 @@ const NewItems = () => {
                     ) : null}
 
                     <div className="nft__item_wrap">
-                      <a href={`/item-details/${item.nftId}`}>
+                      <Link to={`/item-details/${item.nftId || item.id}`}>
                         <img
                           src={item.nftImage || nftImage}
                           className="nft__item_preview"
                           alt={item.title}
                         />
-                      </a>
+                      </Link>
                     </div>
                     <div className="nft__item_info">
-                      <a href={`/item-details/${item.nftId}`}>
+                      <Link to={`/item-details/${item.nftId || item.id}`}>
                         <h4>{item.title}</h4>
-                      </a>
+                      </Link>
                       <div className="nft__item_price">{item.price} ETH</div>
                       <div className="nft__item_like">
                         <i className="fa fa-heart"></i>
