@@ -9,7 +9,7 @@ import AuthorImage from "../../images/author_thumbnail.jpg";
 import nftImage from "../../images/nftImage.jpg";
 
 /** Custom arrows for react-slick */
-function PrevArrow({className, style, onClick}) {
+function PrevArrow({ className, style, onClick }) {
   return (
     <button
       aria-label="Previous"
@@ -23,8 +23,7 @@ function PrevArrow({className, style, onClick}) {
   );
 }
 
-function NextArrow(props) {
-  const { className, style, onClick } = props;
+function NextArrow({ className, style, onClick }) {
   return (
     <button
       aria-label="Next"
@@ -42,7 +41,6 @@ const HotCollections = () => {
   const [collections, setCollections] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch collections
   useEffect(() => {
     const fetchCollections = async () => {
       try {
@@ -60,67 +58,46 @@ const HotCollections = () => {
     fetchCollections();
   }, []);
 
-  // react-slick settings
   const settings = useMemo(
     () => ({
-      infinite: true,           // loop
+      infinite: true,
       speed: 500,
-      slidesToShow: 4,          // desktop
+      slidesToShow: 4,          // desktop default
       slidesToScroll: 1,
       arrows: true,
       dots: false,
-      // Place custom arrows
       prevArrow: <PrevArrow />,
       nextArrow: <NextArrow />,
-      // Responsive breakpoints
       responsive: [
-        {
-          breakpoint: 992, // < 992px
-          settings: { slidesToShow: 3, slidesToScroll: 1 }
-        },
-        {
-          breakpoint: 768, // < 768px
-          settings: { slidesToShow: 2, slidesToScroll: 1 }
-        },
-        {
-          breakpoint: 576, // < 576px
-          settings: { slidesToShow: 1, slidesToScroll: 1 }
-        }
-      ]
+        { breakpoint: 992, settings: { slidesToShow: 3, slidesToScroll: 1 } },
+        { breakpoint: 768, settings: { slidesToShow: 2, slidesToScroll: 1 } },
+        { breakpoint: 576, settings: { slidesToShow: 1, slidesToScroll: 1 } },
+      ],
     }),
     []
   );
 
-  // Hardening to make each card fill its slide exactly
   const slideWrapStyle = { padding: 0, minWidth: 0, display: "flex" };
   const cardStyle = { width: "100%", maxWidth: "100%", boxSizing: "border-box", margin: 0 };
   const mediaStyle = { width: "100%", display: "block" };
 
   return (
     <section id="section-collections" className="no-bottom">
-      {/* Local CSS: arrow styling + sizing fixes for slick */}
       <style>{`
-        /* Make slick track flex so children can stretch cleanly */
-        .hot-collections .slick-track {
-          display: flex !important;
-          gap: 16px; /* horizontal spacing between slides */
-        }
-        /* Each slick slide should behave like a flex item and not shrink */
-        .hot-collections .slick-slide {
-          height: auto;            /* allow content height */
-        }
+        /* ✅ Use padding on slides instead of forcing the track to flex */
+        .hot-collections .slick-list { margin: 0 -8px; }             /* negative gutters */
         .hot-collections .slick-slide > div {
+          padding: 0 8px;                                            /* spacing between cards */
           height: 100%;
-          display: flex;           /* so card can stretch */
+          display: flex;
           min-width: 0;
         }
-        /* Card fills slide; include borders in width to prevent overflow */
+
+        .hot-collections .slick-slide { height: auto; }
         .hot-collections .nft_coll {
           width: 100%;
           max-width: 100%;
           box-sizing: border-box;
-          margin-left: 0 !important;
-          margin-right: 0 !important;
         }
         .hot-collections .nft_wrap,
         .hot-collections .nft_wrap img {
@@ -128,7 +105,7 @@ const HotCollections = () => {
           display: block;
         }
 
-        /* Hide default slick arrows text and theme bg */
+        /* Arrows */
         .hc-arrow.slick-arrow {
           position: absolute;
           top: 50%;
@@ -148,30 +125,13 @@ const HotCollections = () => {
           transition: all 0.25s ease;
           box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
         }
-        .hc-arrow:hover {
-          background: #f4f4f4;             /* subtle hover feedback */
-          transform: translateY(-50%) scale(1.05);
-        }
+        .hc-arrow:hover { background: #f4f4f4; transform: translateY(-50%) scale(1.05); }
         .hc-arrow--left  { left: -21px; }
         .hc-arrow--right { right: -21px; }
-        .hc-arrow:before { content: none; } /* remove slick default icon */
+        .hc-arrow:before { content: none; }
 
-        /* Container to ensure arrows line up vertically */
-        .hot-collections {
-          position: relative;
-          padding: 0 16px; /* breathing room so arrows don't overlap on tiny viewports */
-        }
-
-        /* Adjust gap for small devices since we rely on flex gap, not slick's padding */
-        @media (max-width: 991.98px) {
-          .hot-collections .slick-track { gap: 14px; }
-        }
-        @media (max-width: 767.98px) {
-          .hot-collections .slick-track { gap: 12px; }
-          .hc-arrow--left  { left: -28px; }
-          .hc-arrow--right { right: -28px; }
-          .hc-arrow { width: 48px; height: 48px; font-size: 28px; }
-        }
+        @media (max-width: 991.98px) { .hot-collections .slick-list { margin: 0 -7px; } .hot-collections .slick-slide > div { padding: 0 7px; } }
+        @media (max-width: 767.98px)  { .hot-collections .slick-list { margin: 0 -6px; } .hot-collections .slick-slide > div { padding: 0 6px; } .hc-arrow--left{left:-28px}.hc-arrow--right{right:-28px}.hc-arrow{width:48px;height:48px;font-size:28px} }
       `}</style>
 
       <div className="container">
@@ -184,7 +144,6 @@ const HotCollections = () => {
           </div>
         </div>
 
-        {/* Slider */}
         <div className="hot-collections">
           <Slider {...settings}>
             {loading
