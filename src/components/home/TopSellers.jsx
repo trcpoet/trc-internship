@@ -88,6 +88,7 @@ const TopSellers = () => {
         }
         
         .author_list_pp {
+          
           margin-top: 10px;
           margin-bottom: 10px;
           display: flex;
@@ -103,36 +104,53 @@ const TopSellers = () => {
           }
 
           .author_list_item {
+            position: relative;
             display: flex;
             align-items: center;
             flex: center;
             flex-direction: row;
-            gap: 12px;
-            padding: 12px;
-            border-radius: 25%;
+            gap: 16px;
+            border-radius: 20px;
+            padding: 16px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             background-color: #fff;
             width: calc(25% - 16px);
             box-sizing: border-box;
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            transition:  transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
           }
 
           .author_list_item:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 10px 22px rgba(0, 0, 0, 0.12);
+            transform: translateY(-6px) scale(1.02);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            background: rgba(255, 255, 255, 0.15);
+
           }
 
           .author_rank {
             font-weight: 700;
-            font-size: 1.1rem;
+            font-size: 0.9rem;
+            padding: 6px 12px;
+            border-radius: 999px;
+            transition: transform 0.3s;
+
             color: #4c4c70;
             min-width: 20px;
             text-align: center;
             left: 20px;
           }
-            .pp-author {
-            left: 20px;
-            }
+            
+
+          .pp-author {
+          left: 2rem;
+          }
+
+          .author_list_item:hover .author_rank {
+          transform: scale(1.1) rotate(2deg);
+          }
 
         @keyframes pulse {
           0% { opacity: 1; }
@@ -140,22 +158,41 @@ const TopSellers = () => {
           100% { opacity: 1; }
         }
 
+        .author_list_info span {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color:#e1e1e1;
+  transition: color 0.3s;
+}
+.author_list_item:hover .author_list_info span {
+  color: #ffd369;
+  animation: pulseEth 1.2s infinite ease-in-out;
+}
+@keyframes pulseEth {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; transform: scale(1.05); }
+}
+
+
+
+
+
          @media (max-width: 992px) {
-    .author_list_item {
-      width: calc(33.33% - 16px);
-    }
+          .author_list_item {
+            width: calc(33.33% - 16px);
+          }
   }
 
-  @media (max-width: 768px) {
-    .author_list_item {
-      width: calc(50% - 16px);
-    }
+        @media (max-width: 768px) {
+          .author_list_item {
+            width: calc(50% - 16px);
+          }
   }
 
-  @media (max-width: 576px) {
-    .author_list_item {
-      width: 100%;
-    }
+        @media (max-width: 576px) {
+          .author_list_item {
+            width: 100%;
+          }
   }
       `}</style>
     </section>
