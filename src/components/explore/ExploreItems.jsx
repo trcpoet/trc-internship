@@ -2,8 +2,30 @@ import React from "react";
 import { Link } from "react-router-dom";
 import AuthorImage from "../../images/author_thumbnail.jpg";
 import nftImage from "../../images/nftImage.jpg";
+import { useEffect, useState } from "react";
+import axios from "axios";
+
 
 const ExploreItems = () => {
+const [items, setItems] = useState([]);
+const [loading, setLoading] = useState(true);
+
+useEffect(() => {
+  async function fetchExploreItems () {
+    try {
+      const { data } = await axios.get("https://us-central1-nft-cloud-functions.cloudfunctions.net/explore")
+      setItems(Array.isArray(data ? data : [] ))
+    } catch (e) {
+      setItems([])
+      console.log(e)
+    }
+    finally {
+      setLoading(false)
+    }
+  }
+  fetchExploreItems();
+}, []);
+
   return (
     <>
       <div>
