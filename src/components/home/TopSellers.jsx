@@ -40,7 +40,7 @@ const TopSellers = () => {
             <ol className="author_list">
               {loading
                 ? new Array(12).fill(0).map((_, index) => (
-                    <li key={index}>
+                    <li key={index} className="author_list_item">
                       <div className="author_list_pp">
                         <Skeleton width="50px" height="50px" borderRadius="50%" />
                       </div>
@@ -50,24 +50,31 @@ const TopSellers = () => {
                       </div>
                     </li>
                   ))
-                : sellers.map((seller) => (
-                    <li key={seller.id}>
-                      <div className="author_list_pp">
-                        <Link to={`/author/${seller.id}`}>
-                          <img
-                            className="lazy pp-author"
-                            src={seller.authorImage || AuthorImage}
-                            alt={seller.author}
-                          />
-                          <i className="fa fa-check"></i>
-                        </Link>
-                      </div>
-                      <div className="author_list_info">
-                        <Link to={`/author/${seller.id}`}>{seller.author}</Link>
-                        <span>{parseFloat(seller.price).toFixed(2)} ETH</span>
-                      </div>
-                    </li>
-                  ))}
+                : sellers.map((seller, index) => {
+                    const authorName = seller.authorName || seller.author || "Unknown";
+                    const profileId = seller.authorId || seller.id;
+                    const ethValue = seller.price ?? seller.totalSales ?? 0;
+
+                    return (
+                      <li key={profileId || index} className="author_list_item">
+                        <span className="author_rank">{index + 1}</span>
+                        <div className="author_list_pp">
+                          <Link to={`/author/${profileId}`}>
+                            <img
+                              className="lazy pp-author"
+                              src={seller.authorImage || AuthorImage}
+                              alt={authorName}
+                            />
+                            <i className="fa fa-check"></i>
+                          </Link>
+                        </div>
+                        <div className="author_list_info">
+                          <Link to={`/author/${profileId}`}>{authorName}</Link>
+                          <span>{parseFloat(ethValue).toFixed(2)} ETH</span>
+                        </div>
+                      </li>
+                    );
+                  })}
             </ol>
           </div>
         </div>
@@ -83,8 +90,10 @@ const TopSellers = () => {
         .author_list_pp {
           margin-top: 10px;
           margin-bottom: 10px;
+          display: flex;
+          align-items: center;
         }
-            .author_list {
+          .author_list {
             display: flex;
             flex-wrap: wrap;
             gap: 16px;
@@ -93,16 +102,37 @@ const TopSellers = () => {
             margin-top: 20px;
           }
 
-          .author_list li {
+          .author_list_item {
             display: flex;
             align-items: center;
+            flex: center;
+            flex-direction: row;
             gap: 12px;
             padding: 12px;
-            border-radius: 8px;
+            border-radius: 25%;
             background-color: #fff;
             width: calc(25% - 16px);
             box-sizing: border-box;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
           }
+
+          .author_list_item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 22px rgba(0, 0, 0, 0.12);
+          }
+
+          .author_rank {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #4c4c70;
+            min-width: 20px;
+            text-align: center;
+            left: 20px;
+          }
+            .pp-author {
+            left: 20px;
+            }
 
         @keyframes pulse {
           0% { opacity: 1; }
@@ -111,19 +141,19 @@ const TopSellers = () => {
         }
 
          @media (max-width: 992px) {
-    .author_list li {
+    .author_list_item {
       width: calc(33.33% - 16px);
     }
   }
 
   @media (max-width: 768px) {
-    .author_list li {
+    .author_list_item {
       width: calc(50% - 16px);
     }
   }
 
   @media (max-width: 576px) {
-    .author_list li {
+    .author_list_item {
       width: 100%;
     }
   }

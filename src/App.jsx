@@ -1,5 +1,5 @@
 import Home from "./pages/Home";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { BrowserRouter as Router, Navigate, Route, Routes } from "react-router-dom";
 import Explore from "./pages/Explore";
 import Author from "./pages/Author";
 import ItemDetails from "./pages/ItemDetails";
@@ -13,8 +13,11 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/explore" element={<Explore />} />
-        <Route path="/author" element={<Author />} />
+
+        <Route path="/author" element={<Navigate to="/author/83937449" replace />} />
         <Route path="/author/:authorId" element={<Author />} />
+
+        <Route path="/item-details" element={<Navigate to="/" replace />} />
         <Route path="/item-details/:itemId" element={<ItemDetails />} />
       </Routes>
       <Footer />
