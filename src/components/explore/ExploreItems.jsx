@@ -5,9 +5,11 @@ import nftImage from "../../images/nftImage.jpg";
 import axios from "axios";
 import Skeleton from "../UI/Skeleton";
 import CountdownTimer from "../UI/CountdownTimer";
+import ExploreFilter from "./ExploreFilter";
 
 const ExploreItems = () => {
   const [items, setItems] = useState([]);
+  const [visibleCount, setVisibleCount] = useState(8)
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -27,16 +29,35 @@ const ExploreItems = () => {
     fetchItems();
   }, []);
 
+  const handleLoadMore = () => {
+    setVisibleCount((prev) => prev + 4 ); // Show 4 more each time
+  }
+
+    const handleSortChange = (filter) => {
+    const sorted = [...items];
+    if (filter === "price_low_to_high") {
+      sorted.sort((a, b) => (a.price || 0) - (b.price || 0));
+    } else if (filter === "price_high_to_low") {
+      sorted.sort((a, b) => (b.price || 0) - (a.price || 0));
+    } else if (filter === "likes_high_to_low") {
+      sorted.sort((a, b) => (b.likes || 0) - (a.likes || 0));
+    }
+    setItems(sorted);
+  };
+
+  const displayedItems = items.slice(0, visibleCount); // Limit Display
+
   return (
     <>
-      <div>
+    <ExploreFilter onSortChange={handleSortChange}/>
+      {/* <div>
         <select id="filter-items" defaultValue="">
           <option value="">Default</option>
           <option value="price_low_to_high">Price, Low to High</option>
           <option value="price_high_to_low">Price, High to Low</option>
           <option value="likes_high_to_low">Most liked</option>
         </select>
-      </div>
+      </div> */}
 
       {loading
         ? new Array(8).fill(0).map((_, index) => (
@@ -44,7 +65,7 @@ const ExploreItems = () => {
               <Skeleton width="100%" height="200px" borderRadius="12px" />
             </div>
           ))
-        : items.map((item, index) => {
+        : displayedItems.map((item, index) => {
             const deadlineValue =
               item.deadline ?? item.expiryDate ?? item.expiry_date ?? null;
 
@@ -116,11 +137,15 @@ const ExploreItems = () => {
               </div>
             );
           })}
+
+      {/* 👇 Only show button if more items remain */}
+      {visibleCount < items.length && (
       <div className="col-md-12 text-center">
-        <Link to="" id="loadmore" className="btn-main lead">
+        <button onClick={handleLoadMore} id="loadmore" className="btn-main lead">
           Load more
-        </Link>
+        </button>
       </div>
+      )}
     </>
   );
 };
