@@ -13,7 +13,7 @@ const Author = () => {
 
   const [author, setAuthor] = useState(null);
   const [followers, setFollowers] = useState(0);
-  const [hasFollowed, setHasFollowed] = useState(false); // prevent double follow
+  const [hasFollowed, setHasFollowed] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [authorItems, setAuthorItems] = useState([]);
