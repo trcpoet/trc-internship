@@ -14167,8 +14167,8 @@ a.read_more i {
 
 .de_countdown {
   position: absolute;
-  top: 16px;
-  right: 16px;
+  top: 20px;
+  right: 20px;
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -16756,7 +16756,15 @@ img {
   width: 100%;
 }
 
+.filter-wrapper {
+  position: relative;
+  display: flex;
+  justify-content: flex-start;
+  padding-left: 16px; /* optional, to align nicely */
+}
+
 #filter-items {
+  position: relative;
   background-color: #fff;
   border-radius: 4px;
   border: 1px solid #dcdfe6;
@@ -16768,6 +16776,7 @@ img {
   width: 100%;
   max-width: 200px;
   margin-bottom: 24px;
+  z-index: 1;
 }
 
 .connect-wallet {
