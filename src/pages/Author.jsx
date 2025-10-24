@@ -135,8 +135,15 @@ const renderProfileSkeleton = () => (
                   <div className="d_profile de-flex">
                     <div className="de-flex-col">
                       <div className="profile_avatar">
-                        <img src={authorDetails.avatar} alt={authorDetails.name} />
-                        {authorDetails.verified && <i className="fa fa-check"></i>}
+                      {loading ? (
+                        <Skeleton width="96px" height="96px" borderRadius="50%" />
+                      ) : (
+                        <>
+                          <img src={authorDetails.avatar} alt={authorDetails.name} />
+                          {authorDetails.verified && <i className="fa fa-check"></i>}
+                        </>
+                      )}
+
 
                         <div className="profile_name">
                           <h4>
