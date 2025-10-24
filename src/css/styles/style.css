@@ -16756,6 +16756,13 @@ img {
   width: 100%;
 }
 
+.filter-wrapper {
+  position: relative;
+  display: flex;
+  justify-content: flex-start;
+  padding-left: 16px; /* optional, to align nicely */
+}
+
 #filter-items {
   background-color: #fff;
   border-radius: 4px;
@@ -16768,6 +16775,7 @@ img {
   width: 100%;
   max-width: 200px;
   margin-bottom: 24px;
+  z-index: 1;
 }
 
 .connect-wallet {

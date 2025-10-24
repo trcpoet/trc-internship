@@ -11,7 +11,7 @@ const ExploreItems = () => {
   const [lastLoadedIndex, setLastLoadedIndex] = useState(-1);
   const [visibleCount, setVisibleCount] = useState(8);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState(""); // filter = "" | "price_low_to_high" | etc.
+  const [filter, setFilter] = useState(""); // "price_low_to_high", etc
 
   useEffect(() => {
     async function fetchItems() {
@@ -20,20 +20,22 @@ const ExploreItems = () => {
         const url = `https://us-central1-nft-cloud-functions.cloudfunctions.net/explore${filter ? `?filter=${filter}` : ""}`;
         const { data } = await axios.get(url);
         setItems(Array.isArray(data) ? data : []);
-        setVisibleCount(8); // Reset on new filter
+        setVisibleCount(8);
         setLastLoadedIndex(-1);
+        window.scrollTo(0, 0);
       } catch (e) {
+        console.error("Error fetching:", e);
         setItems([]);
-        console.log(e);
       } finally {
         setLoading(false);
       }
     }
+
     fetchItems();
   }, [filter]);
 
   const handleLoadMore = () => {
-    setLastLoadedIndex(visibleCount); // where animation starts
+    setLastLoadedIndex(visibleCount);
     setVisibleCount((prev) => prev + 4);
   };
 
@@ -41,8 +43,12 @@ const ExploreItems = () => {
 
   return (
     <>
-      <div>
-        <select id="filter-items" defaultValue="" onChange={(e) => setFilter(e.target.value)}>
+      <div className="filter-wrapper">
+        <select
+          id="filter-items"
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+        >
           <option value="">Default</option>
           <option value="price_low_to_high">Price, Low to High</option>
           <option value="price_high_to_low">Price, High to Low</option>
@@ -59,7 +65,6 @@ const ExploreItems = () => {
       {!loading &&
         displayedItems.map((item, index) => {
           const deadlineValue = item.deadline ?? item.expiryDate ?? item.expiry_date ?? null;
-
           return (
             <div
               key={item.id || index}
@@ -68,7 +73,7 @@ const ExploreItems = () => {
             >
               <div className="nft__item">
                 <div className="author_list_pp">
-                  <Link to={`/author/${item.authorId}`} data-bs-toggle="tooltip" data-bs-placement="top">
+                  <Link to={`/author/${item.authorId}`}>
                     <img className="lazy" src={item.authorImage || AuthorImage} alt={item.author} />
                     <i className="fa fa-check"></i>
                   </Link>
@@ -81,23 +86,6 @@ const ExploreItems = () => {
                 )}
 
                 <div className="nft__item_wrap">
-                  <div className="nft__item_extra">
-                    <div className="nft__item_buttons">
-                      <button>Buy Now</button>
-                      <div className="nft__item_share">
-                        <h4>Share</h4>
-                        <a href="#" target="_blank" rel="noreferrer">
-                          <i className="fa fa-facebook fa-lg"></i>
-                        </a>
-                        <a href="#" target="_blank" rel="noreferrer">
-                          <i className="fa fa-twitter fa-lg"></i>
-                        </a>
-                        <a href="#">
-                          <i className="fa fa-envelope fa-lg"></i>
-                        </a>
-                      </div>
-                    </div>
-                  </div>
                   <Link to={`/item-details/${item.nftId}`}>
                     <img
                       src={item.nftImage || nftImage}
@@ -106,6 +94,7 @@ const ExploreItems = () => {
                     />
                   </Link>
                 </div>
+
                 <div className="nft__item_info">
                   <Link to={`/item-details/${item.nftId}`}>
                     <h4>{item.title}</h4>
@@ -123,33 +112,29 @@ const ExploreItems = () => {
 
       {!loading && visibleCount < items.length && (
         <div className="col-md-12 text-center">
-          <button onClick={handleLoadMore} id="loadmore" className="btn-main lead">
+          <button onClick={handleLoadMore} className="btn-main lead" id="loadmore">
             Load more
           </button>
         </div>
       )}
 
-      {/* Animation & Spinner Styles */}
       <style>{`
         .fade-in {
           animation: fadeInUp 0.6s ease forwards;
           opacity: 0;
           transform: translateY(20px);
         }
-
         @keyframes fadeInUp {
           to {
             opacity: 1;
             transform: translateY(0);
           }
         }
-
         .spinner-container {
           display: flex;
           justify-content: center;
           margin: 2rem 0;
         }
-
         .spinner {
           border: 4px solid rgba(0,0,0,0.1);
           width: 40px;
@@ -158,7 +143,6 @@ const ExploreItems = () => {
           border-radius: 50%;
           animation: spin 0.8s linear infinite;
         }
-
         @keyframes spin {
           to {
             transform: rotate(360deg);
