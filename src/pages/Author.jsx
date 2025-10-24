@@ -12,6 +12,8 @@ const Author = () => {
   const authorId = routeId ?? DEFAULT_AUTHOR_ID;
 
   const [author, setAuthor] = useState(null);
+  const [followers, setFollowers] = useState(0);
+  const [hasFollowed, setHasFollowed] = useState(false); // prevent double follow
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [authorItems, setAuthorItems] = useState([]);
@@ -26,17 +28,18 @@ const Author = () => {
       setError(null);
 
       try {
-        const res = await axios.get(`https://us-central1-nft-cloud-functions.cloudfunctions.net/authors?author=${authorId}`);
-        const data = res?.data;
+        const res = await axios.get(
+          `https://us-central1-nft-cloud-functions.cloudfunctions.net/authors?author=${authorId}`
+        );
 
-        if (!data || typeof data !== "object") {
-          throw new Error("Invalid author data");
-        }
+        const data = res?.data;
+        if (!data || typeof data !== "object") throw new Error("Invalid author data");
 
         setAuthor(data);
-        setAuthorItems(data.nftCollection ?? []);
+        setFollowers(data.followers || 0);
+        setAuthorItems(data.nftCollection || []);
       } catch (err) {
-        console.error("Failed to fetch author data", err);
+        console.error("Fetch failed", err);
         setError("Author not found or failed to load.");
         setAuthor(null);
         setAuthorItems([]);
@@ -45,12 +48,19 @@ const Author = () => {
       }
     };
 
-    if (authorId) fetchAuthorData();
+    fetchAuthorData();
   }, [authorId]);
 
   if (!routeId) {
     return <Navigate to={`/author/${DEFAULT_AUTHOR_ID}`} replace />;
   }
+
+  const handleFollow = () => {
+    if (!hasFollowed) {
+      setFollowers((prev) => prev + 1);
+      setHasFollowed(true);
+    }
+  };
 
   const authorDetails = author
     ? {
@@ -59,7 +69,7 @@ const Author = () => {
         wallet: author.wallet ?? "",
         statsLabel: author.totalSales
           ? `${Number(author.totalSales).toFixed(2)} ETH total sales`
-          : "No stats available",
+          : `${followers.toLocaleString()} followers`,
         avatar: author.authorImage ?? AuthorImage,
         banner: author.authorBanner ?? AuthorBanner,
         verified: Boolean(author.verified ?? true),
@@ -68,7 +78,7 @@ const Author = () => {
         name: "Unknown Artist",
         username: "@unknown",
         wallet: "",
-        statsLabel: "No stats available",
+        statsLabel: `${followers.toLocaleString()} followers`,
         avatar: AuthorImage,
         banner: AuthorBanner,
         verified: false,
@@ -113,9 +123,7 @@ const Author = () => {
                 <div className="col-md-12 text-center">
                   <h2>Author unavailable</h2>
                   <p>{error}</p>
-                  <Link to="/explore" className="btn-main">
-                    Browse marketplace
-                  </Link>
+                  <Link to="/explore" className="btn-main">Browse marketplace</Link>
                 </div>
               </div>
             )}
@@ -134,9 +142,7 @@ const Author = () => {
                             {authorDetails.name}
                             <span className="profile_username">{authorDetails.username}</span>
                             {authorDetails.wallet && (
-                              <span id="wallet" className="profile_wallet">
-                                {authorDetails.wallet}
-                              </span>
+                              <span id="wallet" className="profile_wallet">{authorDetails.wallet}</span>
                             )}
                             {authorDetails.wallet && (
                               <button
@@ -154,9 +160,14 @@ const Author = () => {
 
                     <div className="profile_follow de-flex">
                       <div className="de-flex-col">
-                        <div className="profile_follower">{authorDetails.statsLabel}</div>
-                        <button type="button" className="btn-main">
-                          Follow
+                        <div className="profile_follower">{followers.toLocaleString()} followers</div>
+                        <button
+                          type="button"
+                          className="btn-main"
+                          onClick={handleFollow}
+                          disabled={hasFollowed}
+                        >
+                          {hasFollowed ? "Following" : "Follow"}
                         </button>
                       </div>
                     </div>
