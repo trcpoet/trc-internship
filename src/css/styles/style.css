@@ -16787,3 +16787,8 @@ img {
 .no-cursor {
   cursor: not-allowed;
 }
+
+@keyframes pulse {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}

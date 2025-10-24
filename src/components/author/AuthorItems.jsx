@@ -10,21 +10,26 @@ const renderSkeletonGrid = () => (
       <div className="col-lg-3 col-md-6 col-sm-6 col-xs-12" key={`skeleton-${index}`}>
         <div className="nft__item">
           <div className="author_list_pp">
-            <Skeleton width="50px" height="50px" borderRadius="5%" />
+            <Skeleton width="50px" height="50px" borderRadius="5%"   style={{ animationDelay: `${index * 0.1}s` }}
+ />
           </div>
 
-          <Skeleton width="100%" height="200px" borderRadius="12px" />
+          <Skeleton width="100%" height="200px" borderRadius="12px"   style={{ animationDelay: `${index * 0.1}s` }}
+/>
 
           <div className="mt-3">
-            <Skeleton width="70%" height="18px" borderRadius="6px" />
+            <Skeleton width="70%" height="18px" borderRadius="6px"   style={{ animationDelay: `${index * 0.1}s` }}
+/>
           </div>
 
           <div className="mt-2">
-            <Skeleton width="40%" height="16px" borderRadius="6px" />
+            <Skeleton width="40%" height="16px" borderRadius="6px"   style={{ animationDelay: `${index * 0.1}s` }}
+/>
           </div>
 
           <div className="mt-2">
-            <Skeleton width="20%" height="14px" borderRadius="6px" />
+            <Skeleton width="20%" height="14px" borderRadius="6px"   style={{ animationDelay: `${index * 0.1}s` }}
+/>
           </div>
         </div>
       </div>

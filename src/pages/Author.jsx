@@ -4,6 +4,7 @@ import axios from "axios";
 import AuthorBanner from "../images/author_banner.jpg";
 import AuthorImage from "../images/author_thumbnail.jpg";
 import AuthorItems from "../components/author/AuthorItems";
+import Skeleton from "../components/UI/Skeleton";
 
 const DEFAULT_AUTHOR_ID = "83937449";
 
@@ -84,23 +85,23 @@ const Author = () => {
         verified: false,
       };
 
-  const renderProfileSkeleton = () => (
-    <div className="row">
-      <div className="col-md-12">
-        <div className="d_profile de-flex">
-          <div className="de-flex-col w-100">
-            <div className="profile_avatar d-flex align-items-center gap-3">
-              <div className="skeleton-box" style={{ width: 96, height: 96, borderRadius: "50%" }}></div>
-              <div className="flex-grow-1">
-                <div className="skeleton-box" style={{ width: "40%", height: 20, borderRadius: 6 }}></div>
-                <div className="skeleton-box" style={{ width: "30%", height: 16, borderRadius: 6, marginTop: 8 }}></div>
-              </div>
+const renderProfileSkeleton = () => (
+  <div className="row">
+    <div className="col-md-12">
+      <div className="d_profile de-flex">
+        <div className="de-flex-col w-100">
+          <div className="profile_avatar d-flex align-items-center gap-3">
+            <Skeleton width="96px" height="96px" borderRadius="50%" />
+            <div className="flex-grow-1">
+              <Skeleton width="40%" height="20px" borderRadius="6px" />
+              <Skeleton width="30%" height="16px" borderRadius="6px" />
             </div>
           </div>
         </div>
       </div>
     </div>
-  );
+  </div>
+);;
 
   return (
     <div id="wrapper">
