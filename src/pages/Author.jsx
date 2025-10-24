@@ -2,14 +2,15 @@ import React, { useEffect, useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
 import axios from "axios";
 import AuthorBanner from "../images/author_banner.jpg";
-import AuthorItems from "../components/author/AuthorItems";
 import AuthorImage from "../images/author_thumbnail.jpg";
+import AuthorItems from "../components/author/AuthorItems";
 
 const DEFAULT_AUTHOR_ID = "83937449";
 
 const Author = () => {
-  const params = useParams();
-  const authorId = params.authorId ?? DEFAULT_AUTHOR_ID;
+  const { authorId: routeId } = useParams();
+  const authorId = routeId ?? DEFAULT_AUTHOR_ID;
+
   const [author, setAuthor] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -20,101 +21,47 @@ const Author = () => {
   }, []);
 
   useEffect(() => {
-    if (!authorId) return;
-
-    let isMounted = true;
-
-    const fetchAuthor = async () => {
+    const fetchAuthorData = async () => {
       setLoading(true);
       setError(null);
 
       try {
-        const [sellersResponse, itemsResponse] = await Promise.all([
-          axios.get("https://us-central1-nft-cloud-functions.cloudfunctions.net/topSellers"),
-          axios.get("https://us-central1-nft-cloud-functions.cloudfunctions.net/newItems"),
-        ]);
+        const res = await axios.get(`https://us-central1-nft-cloud-functions.cloudfunctions.net/authors?author=${authorId}`);
+        const data = res?.data;
 
-        if (!isMounted) return;
-
-        const sellers = Array.isArray(sellersResponse.data)
-          ? sellersResponse.data
-          : [];
-        const matchedAuthor = sellers.find((seller) => {
-          const sellerId = seller.authorId ?? seller.id;
-          return sellerId && String(sellerId) === String(authorId);
-        });
-
-        if (!matchedAuthor) {
-          setAuthor(null);
-          setAuthorItems([]);
-          setError("Author not found in the top sellers feed.");
-          return;
+        if (!data || typeof data !== "object") {
+          throw new Error("Invalid author data");
         }
 
-        const allItems = Array.isArray(itemsResponse.data)
-          ? itemsResponse.data
-          : [];
-        const targetId = matchedAuthor.authorId ?? matchedAuthor.id;
-
-        const filteredItems = allItems.filter((item) => {
-          const relatedId =
-            item.authorId ??
-            item.ownerId ??
-            item.creatorId ??
-            item.sellerId ??
-            item.id;
-          return (
-            relatedId && targetId && String(relatedId) === String(targetId)
-          );
-        });
-
-        setAuthor(matchedAuthor);
-        setAuthorItems(filteredItems);
-        setError(null);
+        setAuthor(data);
+        setAuthorItems(data.nftCollection ?? []);
       } catch (err) {
-        console.error("Failed to fetch author", err);
-        if (isMounted) setError("Unable to load author profile.");
+        console.error("Failed to fetch author data", err);
+        setError("Author not found or failed to load.");
+        setAuthor(null);
+        setAuthorItems([]);
       } finally {
-        if (isMounted) setLoading(false);
+        setLoading(false);
       }
     };
 
-    fetchAuthor();
-
-    return () => {
-      isMounted = false;
-    };
+    if (authorId) fetchAuthorData();
   }, [authorId]);
 
-  if (!params.authorId) {
+  if (!routeId) {
     return <Navigate to={`/author/${DEFAULT_AUTHOR_ID}`} replace />;
   }
 
   const authorDetails = author
     ? {
-        name:
-          author.authorName ??
-          author.author ??
-          author.name ??
-          "Unknown Artist",
-        username:
-          author.tag ??
-          author.username ??
-          `@${(
-            author.authorName || author.author || "unknown"
-          )
-            .replace(/[^a-z0-9]+/gi, "")
-            .toLowerCase()}`,
+        name: author.authorName ?? author.name ?? "Unknown Artist",
+        username: author.tag ?? `@${(author.authorName || "unknown").replace(/[^a-z0-9]+/gi, "").toLowerCase()}`,
         wallet: author.wallet ?? "",
         statsLabel: author.totalSales
           ? `${Number(author.totalSales).toFixed(2)} ETH total sales`
-          : author.price
-          ? `${Number(author.price).toFixed(2)} ETH total sales`
-          : author.followers
-          ? `${Number(author.followers).toLocaleString()} followers`
           : "No stats available",
-        avatar: author.authorImage ?? author.avatar ?? AuthorImage,
-        banner: author.authorBanner ?? author.bannerImage ?? AuthorBanner,
+        avatar: author.authorImage ?? AuthorImage,
+        banner: author.authorBanner ?? AuthorBanner,
         verified: Boolean(author.verified ?? true),
       }
     : {
@@ -154,13 +101,13 @@ const Author = () => {
           id="profile_banner"
           aria-label="section"
           className="text-light"
-          data-bgimage={"url(images/author_banner.jpg) top"}
           style={{ background: `url(${authorDetails.banner}) top / cover no-repeat` }}
         ></section>
 
         <section aria-label="section">
           <div className="container">
             {loading && renderProfileSkeleton()}
+
             {!loading && error && (
               <div className="row py-5">
                 <div className="col-md-12 text-center">
@@ -172,6 +119,7 @@ const Author = () => {
                 </div>
               </div>
             )}
+
             {!loading && !error && (
               <div className="row">
                 <div className="col-md-12">
@@ -179,8 +127,8 @@ const Author = () => {
                     <div className="de-flex-col">
                       <div className="profile_avatar">
                         <img src={authorDetails.avatar} alt={authorDetails.name} />
-
                         {authorDetails.verified && <i className="fa fa-check"></i>}
+
                         <div className="profile_name">
                           <h4>
                             {authorDetails.name}
@@ -191,7 +139,11 @@ const Author = () => {
                               </span>
                             )}
                             {authorDetails.wallet && (
-                              <button id="btn_copy" title="Copy wallet" onClick={() => navigator.clipboard?.writeText?.(authorDetails.wallet)}>
+                              <button
+                                id="btn_copy"
+                                title="Copy wallet"
+                                onClick={() => navigator.clipboard?.writeText?.(authorDetails.wallet)}
+                              >
                                 Copy
                               </button>
                             )}
@@ -199,6 +151,7 @@ const Author = () => {
                         </div>
                       </div>
                     </div>
+
                     <div className="profile_follow de-flex">
                       <div className="de-flex-col">
                         <div className="profile_follower">{authorDetails.statsLabel}</div>
