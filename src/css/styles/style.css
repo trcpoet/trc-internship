@@ -16764,6 +16764,7 @@ img {
 }
 
 #filter-items {
+  position: relative;
   background-color: #fff;
   border-radius: 4px;
   border: 1px solid #dcdfe6;
