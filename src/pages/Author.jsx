@@ -144,8 +144,6 @@ const renderProfileSkeleton = () => (
                           {authorDetails.verified && <i className="fa fa-check"></i>}
                         </>
                       )}
-
-
                         <div className="profile_name">
                           <h4>
                             {loading ? (
