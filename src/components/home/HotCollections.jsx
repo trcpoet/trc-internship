@@ -82,7 +82,7 @@ const HotCollections = () => {
   const mediaStyle = { width: "100%", display: "block" };
 
   return (
-    <section id="section-collections" className="no-bottom">
+    <section id="section-collections" className="no-bottom" data-aos="fade-up" data-aos-delay="300">
       <style>{`
         /* ✅ Use padding on slides instead of forcing the track to flex */
         .hot-collections .slick-list { margin: 0 -8px; }             /* negative gutters */

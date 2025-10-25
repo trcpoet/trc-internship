@@ -109,7 +109,7 @@ const NewItems = () => {
 
       `}</style>
 
-      <div className="container new-items-slider">
+      <div className="container new-items-slider" data-aos="fade-up" data-aos-delay="300">
         <div className="row">
           <div className="col-lg-12 text-center">
             <h2>New Items</h2>
