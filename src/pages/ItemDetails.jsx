@@ -7,7 +7,7 @@ import AuthorImage from "../images/author_thumbnail.jpg";
 import nftImage from "../images/nftImage.jpg";
 
 const ItemDetails = () => {
-  const { itemId } = useParams();
+  const { itemId } = useParams(); //Extracts itemId from the route /item-details/:itemId
   const [item, setItem] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -28,8 +28,10 @@ const ItemDetails = () => {
       try {
         const { data } = await axios.get(
           "https://us-central1-nft-cloud-functions.cloudfunctions.net/itemDetails",
-          { params: { id: itemId } }
+          { params: { nftId: itemId } }
         );
+            // console.log("Fetched item with ID:", itemId, data); 
+
 
         if (!isMounted) return;
 
