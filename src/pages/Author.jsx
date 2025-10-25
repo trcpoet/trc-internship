@@ -163,7 +163,7 @@ const renderProfileSkeleton = () => (
                             {loading ? (
                               <Skeleton width="60%" height="14px" borderRadius="4px" style={{marginTop: "6px"}}/>
                             ) : (
-                              <span id="address" className="profile_address">{authorDetails.address.slice(0, 10)}</span>
+                              <span id="address" className="profile_address">{authorDetails.address.slice(0, 10)}...</span>
                             )}
                         
                             {!loading && authorDetails.address && (
