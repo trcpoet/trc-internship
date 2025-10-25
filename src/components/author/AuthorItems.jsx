@@ -4,26 +4,39 @@ import Skeleton from "../UI/Skeleton";
 import nftImage from "../../images/nftImage.jpg";
 
 const AuthorItems = ({ items = [], loading = false, fallbackAvatar }) => {
-  const renderSkeletonGrid = () => (
-    <div className="row">
-      {new Array(8).fill(0).map((_, index) => (
-        <div className="col-lg-3 col-md-6 col-sm-6 col-xs-12" key={`skeleton-${index}`}>
-          <div className="nft__item">
-            <div className="author_list_pp">
-              <Skeleton width="50px" height="50px" borderRadius="50%" />
-            </div>
-            <Skeleton width="100%" height="200px" borderRadius="12px" />
-            <div className="mt-3">
-              <Skeleton width="70%" height="18px" borderRadius="6px" />
-            </div>
-            <div className="mt-2">
-              <Skeleton width="40%" height="16px" borderRadius="6px" />
-            </div>
+const renderSkeletonGrid = () => (
+  <div className="row">
+    {new Array(8).fill(0).map((_, index) => (
+      <div className="col-lg-3 col-md-6 col-sm-6 col-xs-12" key={`skeleton-${index}`}>
+        <div className="nft__item">
+          <div className="author_list_pp">
+            <Skeleton width="50px" height="50px" borderRadius="5%"   style={{ animationDelay: `${index * 0.1}s` }}
+ />
+          </div>
+
+          <Skeleton width="100%" height="200px" borderRadius="12px"   style={{ animationDelay: `${index * 0.1}s` }}
+/>
+
+          <div className="mt-3">
+            <Skeleton width="70%" height="18px" borderRadius="6px"   style={{ animationDelay: `${index * 0.1}s` }}
+/>
+          </div>
+
+          <div className="mt-2">
+            <Skeleton width="40%" height="16px" borderRadius="6px"   style={{ animationDelay: `${index * 0.1}s` }}
+/>
+          </div>
+
+          <div className="mt-2">
+            <Skeleton width="20%" height="14px" borderRadius="6px"   style={{ animationDelay: `${index * 0.1}s` }}
+/>
           </div>
         </div>
-      ))}
-    </div>
-  );
+      </div>
+    ))}
+  </div>
+);
+
 
   const safeItems = Array.isArray(items) ? items : [];
 
@@ -41,8 +54,10 @@ const AuthorItems = ({ items = [], loading = false, fallbackAvatar }) => {
       </div>
     );
   }
+  console.log("AuthorItems loading:", loading);
 
   return (
+    
     <div className="row">
       {safeItems.map((item) => {
         const itemId = item.nftId ?? item.id;

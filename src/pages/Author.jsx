@@ -2,15 +2,19 @@ import React, { useEffect, useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
 import axios from "axios";
 import AuthorBanner from "../images/author_banner.jpg";
-import AuthorItems from "../components/author/AuthorItems";
 import AuthorImage from "../images/author_thumbnail.jpg";
+import AuthorItems from "../components/author/AuthorItems";
+import Skeleton from "../components/UI/Skeleton";
 
 const DEFAULT_AUTHOR_ID = "83937449";
 
 const Author = () => {
-  const params = useParams();
-  const authorId = params.authorId ?? DEFAULT_AUTHOR_ID;
+  const { authorId: routeId } = useParams();
+  const authorId = routeId ?? DEFAULT_AUTHOR_ID;
+
   const [author, setAuthor] = useState(null);
+  const [followers, setFollowers] = useState(0);
+  const [hasFollowed, setHasFollowed] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [authorItems, setAuthorItems] = useState([]);
@@ -20,130 +24,85 @@ const Author = () => {
   }, []);
 
   useEffect(() => {
-    if (!authorId) return;
-
-    let isMounted = true;
-
-    const fetchAuthor = async () => {
+    console.log("Fetching author with ID:", authorId);
+    console.log("Loading state:", loading);
+    const fetchAuthorData = async () => {
       setLoading(true);
       setError(null);
 
       try {
-        const [sellersResponse, itemsResponse] = await Promise.all([
-          axios.get("https://us-central1-nft-cloud-functions.cloudfunctions.net/topSellers"),
-          axios.get("https://us-central1-nft-cloud-functions.cloudfunctions.net/newItems"),
-        ]);
+        const res = await axios.get(
+          `https://us-central1-nft-cloud-functions.cloudfunctions.net/authors?author=${authorId}`
+        );
 
-        if (!isMounted) return;
+        const data = res?.data;
+        if (!data || typeof data !== "object") throw new Error("Invalid author data");
 
-        const sellers = Array.isArray(sellersResponse.data)
-          ? sellersResponse.data
-          : [];
-        const matchedAuthor = sellers.find((seller) => {
-          const sellerId = seller.authorId ?? seller.id;
-          return sellerId && String(sellerId) === String(authorId);
-        });
-
-        if (!matchedAuthor) {
-          setAuthor(null);
-          setAuthorItems([]);
-          setError("Author not found in the top sellers feed.");
-          return;
-        }
-
-        const allItems = Array.isArray(itemsResponse.data)
-          ? itemsResponse.data
-          : [];
-        const targetId = matchedAuthor.authorId ?? matchedAuthor.id;
-
-        const filteredItems = allItems.filter((item) => {
-          const relatedId =
-            item.authorId ??
-            item.ownerId ??
-            item.creatorId ??
-            item.sellerId ??
-            item.id;
-          return (
-            relatedId && targetId && String(relatedId) === String(targetId)
-          );
-        });
-
-        setAuthor(matchedAuthor);
-        setAuthorItems(filteredItems);
-        setError(null);
+        setAuthor(data);
+        setFollowers(data.followers || 0);
+        setAuthorItems(data.nftCollection || []);
       } catch (err) {
-        console.error("Failed to fetch author", err);
-        if (isMounted) setError("Unable to load author profile.");
+        console.error("Fetch failed", err);
+        setError("Author not found or failed to load.");
+        setAuthor(null);
+        setAuthorItems([]);
       } finally {
-        if (isMounted) setLoading(false);
+        setLoading(false);
       }
     };
 
-    fetchAuthor();
-
-    return () => {
-      isMounted = false;
-    };
+    fetchAuthorData();
   }, [authorId]);
 
-  if (!params.authorId) {
+  if (!routeId) {
     return <Navigate to={`/author/${DEFAULT_AUTHOR_ID}`} replace />;
   }
 
+  const handleFollow = () => {
+    if (!hasFollowed) {
+      setFollowers((prev) => prev + 1);
+      setHasFollowed(true);
+    }
+  };
+
   const authorDetails = author
     ? {
-        name:
-          author.authorName ??
-          author.author ??
-          author.name ??
-          "Unknown Artist",
-        username:
-          author.tag ??
-          author.username ??
-          `@${(
-            author.authorName || author.author || "unknown"
-          )
-            .replace(/[^a-z0-9]+/gi, "")
-            .toLowerCase()}`,
-        wallet: author.wallet ?? "",
+        name: author.authorName ?? author.name ?? "Unknown Artist",
+        username: author.tag ?? `@${(author.authorName || "unknown").replace(/[^a-z0-9]+/gi, "").toLowerCase()}`,
+        address: author.address ?? "",
         statsLabel: author.totalSales
           ? `${Number(author.totalSales).toFixed(2)} ETH total sales`
-          : author.price
-          ? `${Number(author.price).toFixed(2)} ETH total sales`
-          : author.followers
-          ? `${Number(author.followers).toLocaleString()} followers`
-          : "No stats available",
-        avatar: author.authorImage ?? author.avatar ?? AuthorImage,
-        banner: author.authorBanner ?? author.bannerImage ?? AuthorBanner,
+          : `${followers.toLocaleString()} followers`,
+        avatar: author.authorImage ?? AuthorImage,
+        banner: author.authorBanner ?? AuthorBanner,
         verified: Boolean(author.verified ?? true),
       }
     : {
         name: "Unknown Artist",
         username: "@unknown",
         wallet: "",
-        statsLabel: "No stats available",
+        statsLabel: `${followers.toLocaleString()} followers`,
         avatar: AuthorImage,
         banner: AuthorBanner,
         verified: false,
       };
 
-  const renderProfileSkeleton = () => (
-    <div className="row">
-      <div className="col-md-12">
-        <div className="d_profile de-flex">
-          <div className="de-flex-col w-100">
-            <div className="profile_avatar d-flex align-items-center gap-3">
-              <div className="skeleton-box" style={{ width: 96, height: 96, borderRadius: "50%" }}></div>
-              <div className="flex-grow-1">
-                <div className="skeleton-box" style={{ width: "40%", height: 20, borderRadius: 6 }}></div>
-                <div className="skeleton-box" style={{ width: "30%", height: 16, borderRadius: 6, marginTop: 8 }}></div>
-              </div>
+const renderProfileSkeleton = () => (
+  <div className="row">
+    <div className="col-md-12">
+      <div className="d_profile de-flex">
+        <div className="de-flex-col w-100">
+          <div className="profile_avatar d-flex align-items-center gap-3">
+            <div className="flex-grow-1">
+              <Skeleton width="40%" height="20px" borderRadius="6px" />
+              <Skeleton width="30%" height="16px" borderRadius="6px" />
             </div>
           </div>
         </div>
       </div>
     </div>
-  );
+  </div>
+);;
 
   return (
     <div id="wrapper">
@@ -154,44 +113,65 @@ const Author = () => {
           id="profile_banner"
           aria-label="section"
           className="text-light"
-          data-bgimage={"url(images/author_banner.jpg) top"}
           style={{ background: `url(${authorDetails.banner}) top / cover no-repeat` }}
         ></section>
 
         <section aria-label="section">
           <div className="container">
             {loading && renderProfileSkeleton()}
+
             {!loading && error && (
               <div className="row py-5">
                 <div className="col-md-12 text-center">
                   <h2>Author unavailable</h2>
                   <p>{error}</p>
-                  <Link to="/explore" className="btn-main">
-                    Browse marketplace
-                  </Link>
+                  <Link to="/explore" className="btn-main">Browse marketplace</Link>
                 </div>
               </div>
             )}
-            {!loading && !error && (
+
+            {!error && (
               <div className="row">
                 <div className="col-md-12">
                   <div className="d_profile de-flex">
                     <div className="de-flex-col">
                       <div className="profile_avatar">
-                        <img src={authorDetails.avatar} alt={authorDetails.name} />
+                      {loading ? (
+                        <Skeleton width="96px" height="96px" borderRadius="50%" />
+                      ) : (
+                        <>
+                          <img src={authorDetails.avatar} alt={authorDetails.name} />
+                          {authorDetails.verified && <i className="fa fa-check"></i>}
+                        </>
+                      )}
 
-                        {authorDetails.verified && <i className="fa fa-check"></i>}
+
                         <div className="profile_name">
                           <h4>
-                            {authorDetails.name}
-                            <span className="profile_username">{authorDetails.username}</span>
-                            {authorDetails.wallet && (
-                              <span id="wallet" className="profile_wallet">
-                                {authorDetails.wallet}
-                              </span>
+                            {loading ? (
+                              <Skeleton width="30%" height="20px" borderRadius="4px"/>
+                            ) : (
+                              authorDetails.name
                             )}
-                            {authorDetails.wallet && (
-                              <button id="btn_copy" title="Copy wallet" onClick={() => navigator.clipboard?.writeText?.(authorDetails.wallet)}>
+                            <br/>
+                            {loading ? (
+                              <Skeleton width="25%" height="16px" borderRadius="4px" style={{marginTop: "6px"}}/>
+                            ) : (
+                              <span className="profile_username">{authorDetails.username}</span>
+                            )}
+                            <br/>
+                            {loading ? (
+                              <Skeleton width="60%" height="14px" borderRadius="4px" style={{marginTop: "6px"}}/>
+                            ) : (
+                              <span id="address" className="profile_address">{authorDetails.address.slice(0, 10)}</span>
+                            )}
+                        
+                            {!loading && authorDetails.address && (
+                              <button
+                                id="btn_copy"
+                                title="Copy wallet"
+                                onClick={() => navigator.clipboard?.writeText?.(authorDetails.address)}
+                              >
                                 Copy
                               </button>
                             )}
@@ -199,12 +179,28 @@ const Author = () => {
                         </div>
                       </div>
                     </div>
+
                     <div className="profile_follow de-flex">
                       <div className="de-flex-col">
-                        <div className="profile_follower">{authorDetails.statsLabel}</div>
-                        <button type="button" className="btn-main">
-                          Follow
-                        </button>
+                      {loading ? (
+                        <>
+                          <Skeleton width="80px" height="16px" borderRadius="6px" />
+                          <Skeleton width="100px" height="36px" borderRadius="8px" style={{ marginTop: "10px" }} />
+                        </>
+                      ) : (
+                        <>
+                          <div className="profile_follower">{followers.toLocaleString()} followers</div>
+                          <button
+                            type="button"
+                            className="btn-main"
+                            onClick={handleFollow}
+                            disabled={hasFollowed}
+                          >
+                            {hasFollowed ? "Following" : "Follow"}
+                          </button>
+                        </>
+                      )}
+
                       </div>
                     </div>
                   </div>
