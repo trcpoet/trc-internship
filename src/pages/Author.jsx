@@ -200,12 +200,10 @@ const renderProfileSkeleton = () => (
                           </button>
                         </>
                       )}
-
                       </div>
                     </div>
                   </div>
                 </div>
-
                 <div className="col-md-12">
                   <div className="de_tab tab_simple">
                     <AuthorItems
