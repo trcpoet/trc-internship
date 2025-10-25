@@ -54,8 +54,10 @@ const renderSkeletonGrid = () => (
       </div>
     );
   }
+  console.log("AuthorItems loading:", loading);
 
   return (
+    
     <div className="row">
       {safeItems.map((item) => {
         const itemId = item.nftId ?? item.id;

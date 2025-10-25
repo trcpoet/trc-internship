@@ -24,6 +24,8 @@ const Author = () => {
   }, []);
 
   useEffect(() => {
+    console.log("Fetching author with ID:", authorId);
+    console.log("Loading state:", loading);
     const fetchAuthorData = async () => {
       setLoading(true);
       setError(null);
@@ -91,7 +93,6 @@ const renderProfileSkeleton = () => (
       <div className="d_profile de-flex">
         <div className="de-flex-col w-100">
           <div className="profile_avatar d-flex align-items-center gap-3">
-            <Skeleton width="96px" height="96px" borderRadius="50%" />
             <div className="flex-grow-1">
               <Skeleton width="40%" height="20px" borderRadius="6px" />
               <Skeleton width="30%" height="16px" borderRadius="6px" />
@@ -129,7 +130,7 @@ const renderProfileSkeleton = () => (
               </div>
             )}
 
-            {!loading && !error && (
+            {!error && (
               <div className="row">
                 <div className="col-md-12">
                   <div className="d_profile de-flex">
