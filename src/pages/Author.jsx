@@ -69,7 +69,7 @@ const Author = () => {
     ? {
         name: author.authorName ?? author.name ?? "Unknown Artist",
         username: author.tag ?? `@${(author.authorName || "unknown").replace(/[^a-z0-9]+/gi, "").toLowerCase()}`,
-        wallet: author.wallet ?? "",
+        address: author.address ?? "",
         statsLabel: author.totalSales
           ? `${Number(author.totalSales).toFixed(2)} ETH total sales`
           : `${followers.toLocaleString()} followers`,
@@ -148,16 +148,29 @@ const renderProfileSkeleton = () => (
 
                         <div className="profile_name">
                           <h4>
-                            {authorDetails.name}
-                            <span className="profile_username">{authorDetails.username}</span>
-                            {authorDetails.wallet && (
-                              <span id="wallet" className="profile_wallet">{authorDetails.wallet}</span>
+                            {loading ? (
+                              <Skeleton width="30%" height="20px" borderRadius="4px"/>
+                            ) : (
+                              authorDetails.name
                             )}
-                            {authorDetails.wallet && (
+                            <br/>
+                            {loading ? (
+                              <Skeleton width="25%" height="16px" borderRadius="4px" style={{marginTop: "6px"}}/>
+                            ) : (
+                              <span className="profile_username">{authorDetails.username}</span>
+                            )}
+                            <br/>
+                            {loading ? (
+                              <Skeleton width="60%" height="14px" borderRadius="4px" style={{marginTop: "6px"}}/>
+                            ) : (
+                              <span id="address" className="profile_address">{authorDetails.address.slice(0, 10)}</span>
+                            )}
+                        
+                            {!loading && authorDetails.address && (
                               <button
                                 id="btn_copy"
                                 title="Copy wallet"
-                                onClick={() => navigator.clipboard?.writeText?.(authorDetails.wallet)}
+                                onClick={() => navigator.clipboard?.writeText?.(authorDetails.address)}
                               >
                                 Copy
                               </button>
@@ -169,15 +182,25 @@ const renderProfileSkeleton = () => (
 
                     <div className="profile_follow de-flex">
                       <div className="de-flex-col">
-                        <div className="profile_follower">{followers.toLocaleString()} followers</div>
-                        <button
-                          type="button"
-                          className="btn-main"
-                          onClick={handleFollow}
-                          disabled={hasFollowed}
-                        >
-                          {hasFollowed ? "Following" : "Follow"}
-                        </button>
+                      {loading ? (
+                        <>
+                          <Skeleton width="80px" height="16px" borderRadius="6px" />
+                          <Skeleton width="100px" height="36px" borderRadius="8px" style={{ marginTop: "10px" }} />
+                        </>
+                      ) : (
+                        <>
+                          <div className="profile_follower">{followers.toLocaleString()} followers</div>
+                          <button
+                            type="button"
+                            className="btn-main"
+                            onClick={handleFollow}
+                            disabled={hasFollowed}
+                          >
+                            {hasFollowed ? "Following" : "Follow"}
+                          </button>
+                        </>
+                      )}
+
                       </div>
                     </div>
                   </div>

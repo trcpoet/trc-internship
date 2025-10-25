@@ -14342,7 +14342,7 @@ a.read_more i {
   display: block;
 }
 
-.profile_wallet {
+.profile_address {
   display: block;
   white-space: nowrap;
   overflow: hidden;
@@ -14353,15 +14353,15 @@ a.read_more i {
   color: #727272;
 }
 
-.rtl .profile_wallet {
+.rtl .profile_address {
   float: right;
 }
 
-.dark-scheme .profile_wallet {
+.dark-scheme .profile_address {
   color: #9fa4dd;
 }
 
-.d_coll .profile_wallet {
+.d_coll .profile_address {
   display: inline-block;
   float: none;
 }
@@ -16791,4 +16791,12 @@ img {
 @keyframes pulse {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
+}
+
+.profile_address {
+  font-size: 16px;
+  font-weight: 500;
+  color: skyblue;
+  justify-content: start;
+  align-items: start;
 }
